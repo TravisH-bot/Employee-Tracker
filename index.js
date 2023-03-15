@@ -1,25 +1,73 @@
+const mysql = require("mysql2");
 const { prompt } = require("inquirer");
+const consoleTable = require("console.table");
+const figlet = require("figlet");
 
+// figlet("Employee \n Tracker", function (err, data) {
+//   if (err) {
+//     console.log("Something went wrong...");
+//     console.dir(err);
+//     return;
+//   }
+//   console.log(data);
+// });
+
+const db = mysql.createConnection(
+  {
+    host: "localhost",
+    user: "root",
+    password: "root",
+    database: "employees_db",
+  },
+  console.log(`Connected to the employees_tracker database`)
+);
+
+//Function to initialize the prompt
 const init = async () => {
   const response = await prompt(initQuestions);
-  options[choice]();
+  options[response.choice]();
 };
 
 const options = {
-  option1: () => {
-    console.log("You selected option 1");
+  "View All Employees": () => {
+    // console.log("You selected option View All Employees");
+    db.query(
+      "SELECT * FROM employee JOIN role ON employee.department_id = role.id",
+      (err, data) => {
+        console.table(data);
+      }
+    );
     init();
   },
-  option2: () => {
+
+  "Add Employee": () => {
     console.log("You selected option 2");
     init();
   },
-  option3: () => {
+  "Update Employee Role": () => {
     console.log("You selected option 3");
     init();
   },
-  option4: () => {
-    console.log("You selected option 4");
+  "View All Roles": () => {
+    // console.log("You selected option 4");
+    db.query("SELECT * FROM role", (err, data) => {
+      console.table(data);
+    });
+    init();
+  },
+  "Add Role": () => {
+    console.log("You selected option 5");
+    init();
+  },
+  "View All Departments": () => {
+    // console.log("You selected option 6");
+    db.query("SELECT * FROM department", (err, data) => {
+      console.table(data);
+    });
+    init();
+  },
+  "Add Department": () => {
+    console.log("You selected option 7");
     init();
   },
 };
@@ -32,3 +80,13 @@ const initQuestions = [
     choices: Object.keys(options),
   },
 ];
+
+init();
+// con
+//   .promise()
+//   .query("SELECT 1")
+//   .then(([rows, fields]) => {
+//     console.log(rows);
+//   })
+//   .catch(console.log)
+//   .then(() => con.end());
