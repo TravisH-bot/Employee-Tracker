@@ -30,13 +30,14 @@ const init = async () => {
 
 const options = {
   "View All Employees": () => {
-    // console.log("You selected option View All Employees");
     db.query(
-      "SELECT * FROM employee JOIN role ON employee.department_id = role.id",
+      "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department, role.salary, employee.manager_id FROM employee JOIN role ON (employee.role_id = role.id) JOIN department ON (department.id = role.department_id)",
       (err, data) => {
+        err ? console.log(err) : console.log("\n");
         console.table(data);
       }
     );
+
     init();
   },
 
@@ -49,8 +50,9 @@ const options = {
     init();
   },
   "View All Roles": () => {
-    // console.log("You selected option 4");
+    console.log("You selected option 4");
     db.query("SELECT * FROM role", (err, data) => {
+      err ? console.log(err) : console.log("\n");
       console.table(data);
     });
     init();
@@ -62,6 +64,7 @@ const options = {
   "View All Departments": () => {
     // console.log("You selected option 6");
     db.query("SELECT * FROM department", (err, data) => {
+      err ? console.log(err) : console.log("\n");
       console.table(data);
     });
     init();
