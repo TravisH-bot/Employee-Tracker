@@ -41,14 +41,43 @@ const options = {
     init();
   },
 
-  "Add Employee": () => {
-    console.log("You selected option 2");
-    init();
+  "Add Employee": (first_name, last_name, role_id, manager_id) => {
+    prompt([
+      {
+        type: "input",
+        message: "What is the employee's first name?",
+        name: "first_name",
+      },
+      {
+        type: "input",
+        message: "What is the employee's last name?",
+        name: "last_name",
+      },
+      {
+        type: "input",
+        message: "What is the employee's role?",
+        name: "role_id",
+      },
+      {
+        type: "input",
+        message: "Who is the employee's manager?",
+        name: "manager_id",
+      },
+      () => {
+        db.query(
+          `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${first_name}", "${last_name}", "${role_id}", "${manager_id}")`
+        ),
+          console.log("New employee added.");
+        init();
+      },
+    ]);
   },
+
   "Update Employee Role": () => {
     console.log("You selected option 3");
     init();
   },
+
   "View All Roles": () => {
     console.log("You selected option 4");
     db.query("SELECT * FROM role", (err, data) => {
@@ -57,10 +86,22 @@ const options = {
     });
     init();
   },
-  "Add Role": () => {
-    console.log("You selected option 5");
-    init();
+
+  "Add Role": (role_id) => {
+    prompt([
+      {
+        input: "input",
+        message: "What is the name of the role?",
+        name: "role_id",
+      },
+      () => {
+        db.query(`INSERT INTO role ${role_id}`);
+        console.log("You selected option 5");
+        init();
+      },
+    ]);
   },
+
   "View All Departments": () => {
     // console.log("You selected option 6");
     db.query("SELECT * FROM department", (err, data) => {
@@ -69,9 +110,20 @@ const options = {
     });
     init();
   },
-  "Add Department": () => {
-    console.log("You selected option 7");
-    init();
+
+  "Add Department": (department) => {
+    prompt([
+      {
+        input: "input",
+        message: "What is the name of the department?",
+        name: "department",
+      },
+      () => {
+        db.query(`INSERT INTO department ${department}`);
+        console.log("You selected option 7");
+        init();
+      },
+    ]);
   },
 };
 
@@ -85,11 +137,3 @@ const initQuestions = [
 ];
 
 init();
-// con
-//   .promise()
-//   .query("SELECT 1")
-//   .then(([rows, fields]) => {
-//     console.log(rows);
-//   })
-//   .catch(console.log)
-//   .then(() => con.end());
