@@ -208,6 +208,7 @@ const initQuestions = [
   {
     type: "list",
     name: "choice",
+    loop: false,
     message: "What would you like to do?",
     choices: Object.keys(options),
   },
