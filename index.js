@@ -2,15 +2,7 @@ const mysql = require("mysql2");
 const { prompt } = require("inquirer");
 const consoleTable = require("console.table");
 const figlet = require("figlet");
-
-// figlet("Employee \n Tracker", function (err, data) {
-//   if (err) {
-//     console.log("Something went wrong...");
-//     console.dir(err);
-//     return;
-//   }
-//   console.log(data);
-// });
+const chalk = require("chalk");
 
 const db = mysql.createConnection(
   {
@@ -24,6 +16,17 @@ const db = mysql.createConnection(
 
 //Function to initialize the prompt
 const init = async () => {
+  console.log(
+    chalk.cyan(
+      "==============================================================================================="
+    )
+  );
+  console.log(chalk.yellow(figlet.textSync("EMPLOYEE TRACKER")));
+  console.log(
+    chalk.cyan(
+      "==============================================================================================="
+    )
+  );
   const response = await prompt(initQuestions);
   options[response.choice]();
 };
@@ -32,7 +35,7 @@ const options = {
   "View All Employees": () => {
     console.log("You selected View All Employees");
     db.query(
-      "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department, role.salary, employee.manager_id FROM employee JOIN role ON (employee.role_id = role.id) JOIN department ON (department.id = role.department_id)",
+      `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department AS department, role.salary, CONCAT (manager.first_name, " ", manager.last_name) AS manager FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee manager ON employee.manager_id = manager.id`,
       (err, data) => {
         err ? console.log(err) : console.log("\n");
         console.table(data);
@@ -45,11 +48,11 @@ const options = {
   "Add Employee": () => {
     console.log("You selected Add Employee");
     db.query("SELECT id as value, title AS name FROM role", (err, data) => {
-      console.table(data);
+      // console.table(data);
       db.query(
-        'SELECT CONCAT(first_name, " ", last_name) AS name, id AS value FROM employee WHERE manager_id IS null',
+        'SELECT CONCAT(first_name, "", last_name) AS name, id AS value FROM employee WHERE manager_id IS null',
         (err, userData) => {
-          console.table(userData);
+          // console.table(userData);
           prompt([
             {
               type: "input",
@@ -88,8 +91,39 @@ const options = {
   },
 
   "Update Employee Role": () => {
-    console.log("You selected Update Employee Role");
-    init();
+    db.query(
+      "SELECT CONCAT(first_name, ' ', last_name) AS name, id AS value from employee ",
+      (err, data) => {
+        // err ? console.log(err) : console.table(empData);
+        db.query(
+          "SELECT id AS value, title AS name FROM role",
+          (err, roleData) => {
+            // err ? console.log(err) : console.table(roleData);
+            prompt([
+              {
+                type: "list",
+                message: "Which employee's role do you want to update?",
+                choices: data,
+                name: "employee_id",
+              },
+              {
+                type: "list",
+                message:
+                  "Which role do you want to assign the selected employee?",
+                choices: roleData,
+                name: "role_id",
+              },
+            ]).then((data) => {
+              db.query(
+                `UPDATE employee SET role_id = ${data.role_id} WHERE id = ${data.employee_id}`
+              );
+              console.log("You updated an employees role");
+              init();
+            });
+          }
+        );
+      }
+    );
   },
 
   "View All Roles": () => {
@@ -163,6 +197,10 @@ const options = {
         }
       );
     });
+  },
+
+  Quit: () => {
+    process.exit();
   },
 };
 

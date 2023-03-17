@@ -10,7 +10,7 @@ PRIMARY KEY(id)
 );
 
 CREATE TABLE role (
-id INT,
+id INT AUTO_INCREMENT,,
 title VARCHAR(30),
 salary DECIMAL(10,2),
 department_id INT,
@@ -20,7 +20,7 @@ REFERENCES department(id)
 );
 
 CREATE TABLE employee (
-id INT, 
+id INT AUTO_INCREMENT,, 
 first_name VARCHAR(30),
 last_name VARCHAR(30),
 role_id INT, 
