@@ -30,6 +30,7 @@ const init = async () => {
 
 const options = {
   "View All Employees": () => {
+    console.log("You selected View All Employees");
     db.query(
       "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department, role.salary, employee.manager_id FROM employee JOIN role ON (employee.role_id = role.id) JOIN department ON (department.id = role.department_id)",
       (err, data) => {
@@ -41,45 +42,58 @@ const options = {
     init();
   },
 
-  "Add Employee": (first_name, last_name, role_id, manager_id) => {
-    prompt([
-      {
-        type: "input",
-        message: "What is the employee's first name?",
-        name: "first_name",
-      },
-      {
-        type: "input",
-        message: "What is the employee's last name?",
-        name: "last_name",
-      },
-      {
-        type: "input",
-        message: "What is the employee's role?",
-        name: "role_id",
-      },
-      {
-        type: "input",
-        message: "Who is the employee's manager?",
-        name: "manager_id",
-      },
-      () => {
-        db.query(
-          `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${first_name}", "${last_name}", "${role_id}", "${manager_id}")`
-        ),
-          console.log("New employee added.");
-        init();
-      },
-    ]);
+  "Add Employee": () => {
+    console.log("You selected Add Employee");
+    db.query("SELECT id as value, title AS name FROM role", (err, data) => {
+      console.table(data);
+      db.query(
+        'SELECT CONCAT(first_name, " ", last_name) AS name, id AS value FROM employee WHERE manager_id IS null',
+        (err, userData) => {
+          console.table(userData);
+          prompt([
+            {
+              type: "input",
+              message: "What is the employee's first name?",
+              name: "first_name",
+            },
+            {
+              type: "input",
+              message: "What is the employee's last name?",
+              name: "last_name",
+            },
+            {
+              type: "list",
+              message: "What is the employee's role?",
+              choices: data,
+              name: "role_id",
+            },
+            {
+              type: "list",
+              message: "Who is the employee's manager?",
+              choices: userData,
+              name: "manager_id",
+            },
+          ]).then(({ first_name, last_name, role_id, manager_id }) => {
+            db.query(
+              `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${first_name}", "${last_name}", "${role_id}", "${manager_id}")`,
+              (err, data) => {
+                err ? console.log(err) : console.log("\n");
+                init();
+              }
+            );
+          });
+        }
+      );
+    });
   },
 
   "Update Employee Role": () => {
-    console.log("You selected option 3");
+    console.log("You selected Update Employee Role");
     init();
   },
 
   "View All Roles": () => {
-    console.log("You selected option 4");
+    console.log("You selected Update Employee Role");
     db.query("SELECT * FROM role", (err, data) => {
       err ? console.log(err) : console.log("\n");
       console.table(data);
@@ -87,23 +101,44 @@ const options = {
     init();
   },
 
-  "Add Role": (role_id) => {
-    prompt([
-      {
-        input: "input",
-        message: "What is the name of the role?",
-        name: "role_id",
-      },
-      () => {
-        db.query(`INSERT INTO role ${role_id}`);
-        console.log("You selected option 5");
-        init();
-      },
-    ]);
+  "Add Role": () => {
+    console.log("You selected Add Role");
+    db.query(
+      "SELECT id AS value, department as name FROM department",
+      (err, data) => {
+        // console.log(data);
+        prompt([
+          {
+            type: "input",
+            message: "What is the name of the role?",
+            name: "title",
+          },
+          {
+            type: "input",
+            message: "What is the salary of the role?",
+            name: "salary",
+          },
+          {
+            type: "list",
+            message: "Which department does the role belong to?",
+            choices: data,
+            name: "department_id",
+          },
+        ]).then(({ title, salary, department_id }) => {
+          db.query(
+            `INSERT INTO role (title, salary, department_id) VALUES ("${title}", "${salary}", "${department_id}")`,
+            (err, data) => {
+              err ? console.log(err) : console.log("\n");
+              init();
+            }
+          );
+        });
+      }
+    );
   },
 
   "View All Departments": () => {
-    // console.log("You selected option 6");
+    console.log("You selected View All Departments");
     db.query("SELECT * FROM department", (err, data) => {
       err ? console.log(err) : console.log("\n");
       console.table(data);
@@ -111,19 +146,23 @@ const options = {
     init();
   },
 
-  "Add Department": (department) => {
+  "Add Department": () => {
+    console.log("You selected Add Department");
     prompt([
       {
         input: "input",
         message: "What is the name of the department?",
         name: "department",
       },
-      () => {
-        db.query(`INSERT INTO department ${department}`);
-        console.log("You selected option 7");
-        init();
-      },
-    ]);
+    ]).then(({ department }) => {
+      db.query(
+        `INSERT INTO department (department) VALUES ("${department}")`,
+        (err, data) => {
+          err ? console.log(err) : console.log("\n");
+          init();
+        }
+      );
+    });
   },
 };
 
