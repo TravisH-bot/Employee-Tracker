@@ -66,12 +66,14 @@ const options = {
             },
             {
               type: "list",
+              loop: false,
               message: "What is the employee's role?",
               choices: data,
               name: "role_id",
             },
             {
               type: "list",
+              loop: false,
               message: "Who is the employee's manager?",
               choices: userData,
               name: "manager_id",
@@ -102,12 +104,14 @@ const options = {
             prompt([
               {
                 type: "list",
+                loop: false,
                 message: "Which employee's role do you want to update?",
                 choices: data,
                 name: "employee_id",
               },
               {
                 type: "list",
+                loop: false,
                 message:
                   "Which role do you want to assign the selected employee?",
                 choices: roleData,
@@ -154,6 +158,7 @@ const options = {
           },
           {
             type: "list",
+            loop: false,
             message: "Which department does the role belong to?",
             choices: data,
             name: "department_id",
